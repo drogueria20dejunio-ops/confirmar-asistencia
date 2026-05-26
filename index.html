@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Confirmá tu asistencia</title>
+  <title>Tomamos IMPULSO juntos - Check-in</title>
 
   <style>
     body {
@@ -76,6 +76,7 @@
     .btn:hover {
       background: #15803d;
     }
+
   </style>
 </head>
 <body>
@@ -83,12 +84,12 @@
 <div class="container">
 
   <div class="card">
-    <h1>Confirmá tu asistencia</h1>
-    <div class="subtitle">Coty Beauty Experience</div>
+    <h1>Tomamos IMPULSO juntos</h1>
+    <div class="subtitle">Bienvenido al evento - 15 de abril</div>
   </div>
 
   <div class="card">
-    <h2>Confirmá tu asistencia</h2>
+    <h2>Confirmación asistencia</h2>
 
     <input id="dni" class="input" placeholder="DNI" autofocus />
     <input id="farmacia" class="input" placeholder="Número de farmacia" />
@@ -98,11 +99,6 @@
     <div id="message" class="message"></div>
   </div>
 
-</div>
-
-<div id="successOverlay" style="position:fixed; inset:0; background:rgba(22,163,74,.96); color:white; display:none; align-items:center; justify-content:center; flex-direction:column; z-index:9999; text-align:center;">
-  <div style="font-size:110px; line-height:1; font-weight:bold; margin-bottom:16px;">✔</div>
-  <div style="font-size:54px; font-weight:bold; letter-spacing:.02em;">VALIDADO</div>
 </div>
 
 <script>
@@ -117,14 +113,6 @@ function showMessage(text, type){
 
 function normalize(v){
   return String(v || '').replace(/\s+/g,'').toLowerCase();
-}
-
-function showOverlay(){
-  const overlay = document.getElementById('successOverlay');
-  overlay.style.display = 'flex';
-  setTimeout(() => {
-    overlay.style.display = 'none';
-  }, 1000);
 }
 
 async function validar(){
@@ -159,21 +147,20 @@ async function validar(){
     }
 
     await fetch(endpoint,{
-  method:'POST',
-  mode:'no-cors',
-  headers:{'Content-Type':'text/plain;charset=utf-8'},
-  body:JSON.stringify({
-    attendee:{
-      name: persona.name,
-      dni: persona.dni,
-      pharmacyNumber: farmacia || persona.pharmacyNumber,
-      checkedAt: new Date().toISOString()
-    }
-  })
-});
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({
+        attendee:{
+          name: persona.name,
+          dni: persona.dni,
+          pharmacyNumber: farmacia || persona.pharmacyNumber,
+          checkedAt: new Date().toISOString()
+        }
+      })
+    });
 
     showMessage('✔ Asistencia registrada','success');
-    showOverlay();
     dniInput.value = '';
     farmaciaInput.value = '';
     dniInput.focus();
@@ -185,12 +172,6 @@ async function validar(){
 
 document.getElementById('farmacia').addEventListener('keydown', e => {
   if(e.key === 'Enter') validar();
-});
-
-document.getElementById('dni').addEventListener('keydown', e => {
-  if(e.key === 'Enter') {
-    document.getElementById('farmacia').focus();
-  }
 });
 </script>
 
