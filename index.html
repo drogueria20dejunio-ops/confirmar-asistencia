@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tomamos IMPULSO juntos - Check-in</title>
+  <title>Verifica tu asistencia</title>
 
   <style>
     body {
@@ -83,12 +83,12 @@
 <div class="container">
 
   <div class="card">
-    <h1>Tomamos IMPULSO juntos</h1>
-    <div class="subtitle">Bienvenido al evento - 15 de abril</div>
+    <h1>Confirmá tu asistencia</h1>
+    <div class="subtitle">Coty Beauty Experience</div>
   </div>
 
   <div class="card">
-    <h2>Validación de asistencia</h2>
+    <h2>Confirmá tu asistencia</h2>
 
     <input id="dni" class="input" placeholder="DNI" autofocus />
     <input id="farmacia" class="input" placeholder="Número de farmacia" />
@@ -158,20 +158,19 @@ async function validar(){
       return;
     }
 
-    const save = await fetch(endpoint,{
-      method:'POST',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify({
-        attendee:{
-          name: persona.name,
-          dni: persona.dni,
-          pharmacyNumber: farmacia || persona.pharmacyNumber,
-          checkedAt: new Date().toISOString()
-        }
-      })
-    });
-
-    if(!save.ok) throw new Error();
+    await fetch(endpoint,{
+  method:'POST',
+  mode:'no-cors',
+  headers:{'Content-Type':'text/plain;charset=utf-8'},
+  body:JSON.stringify({
+    attendee:{
+      name: persona.name,
+      dni: persona.dni,
+      pharmacyNumber: farmacia || persona.pharmacyNumber,
+      checkedAt: new Date().toISOString()
+    }
+  })
+});
 
     showMessage('✔ Asistencia registrada','success');
     showOverlay();
