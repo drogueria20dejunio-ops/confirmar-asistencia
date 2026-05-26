@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tomamos IMPULSO juntos - Check-in</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #f8fafc, #eef2ff);
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      font-size: 48px;
+      margin: 0 0 10px;
+    }
+
+    .subtitle {
+      font-size: 20px;
+      color: #666;
+    }
+
+    .input {
+      width: 100%;
+      padding: 20px;
+      font-size: 24px;
+      border-radius: 15px;
+      border: 1px solid #ccc;
+      margin-top: 15px;
+      box-sizing: border-box;
+    }
+
+    .message {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 10px;
+      display: none;
+      font-size: 18px;
+    }
+
+    .success { background: #ecfdf5; }
+    .error { background: #fef2f2; }
+    .warning { background: #fffbeb; }
+
+    .btn {
+      margin-top: 15px;
+      width: 100%;
+      padding: 20px;
+      font-size: 22px;
+      border-radius: 15px;
+      border: none;
+      background: #16a34a;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background: #15803d;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="card">
+    <h1>Tomamos IMPULSO juntos</h1>
+    <div class="subtitle">Bienvenido al evento - 15 de abril</div>
+  </div>
+
+  <div class="card">
+    <h2>Validación de asistencia</h2>
+
+    <input id="dni" class="input" placeholder="DNI" autofocus />
+    <input id="farmacia" class="input" placeholder="Número de farmacia" />
+
+    <button class="btn" onclick="validar()">Confirmar asistencia</button>
+
+    <div id="message" class="message"></div>
+  </div>
+
+</div>
+
+<div id="successOverlay" style="position:fixed; inset:0; background:rgba(22,163,74,.96); color:white; display:none; align-items:center; justify-content:center; flex-direction:column; z-index:9999; text-align:center;">
+  <div style="font-size:110px; line-height:1; font-weight:bold; margin-bottom:16px;">✔</div>
+  <div style="font-size:54px; font-weight:bold; letter-spacing:.02em;">VALIDADO</div>
+</div>
+
+<script>
+const endpoint = "https://script.google.com/macros/s/AKfycbwJE9PjwAd27UpgwAJtZKEk0Ew94H9mvsb6bZeGd919zITse68Cnitf2ZTZ-FWQzxbG/exec";
+
+function showMessage(text, type){
+  const el = document.getElementById('message');
+  el.innerText = text;
+  el.className = 'message ' + type;
+  el.style.display = 'block';
+}
+
+function normalize(v){
+  return String(v || '').replace(/\s+/g,'').toLowerCase();
+}
+
+function showOverlay(){
+  const overlay = document.getElementById('successOverlay');
+  overlay.style.display = 'flex';
+  setTimeout(() => {
+    overlay.style.display = 'none';
+  }, 1000);
+}
+
+async function validar(){
+  const dniInput = document.getElementById('dni');
+  const farmaciaInput = document.getElementById('farmacia');
+
+  const dni = normalize(dniInput.value);
+  const farmacia = normalize(farmaciaInput.value);
+
+  if(!dni){
+    showMessage('Ingresá DNI','error');
+    return;
+  }
+
+  try{
+    const res = await fetch(endpoint + '?action=list');
+    const data = await res.json();
+
+    const persona = data.find(p => normalize(p.dni) === dni);
+
+    if(!persona){
+      showMessage('No encontrado','error');
+      return;
+    }
+
+    if(persona.attended){
+      showMessage('Ya registrado','warning');
+      dniInput.value = '';
+      farmaciaInput.value = '';
+      dniInput.focus();
+      return;
+    }
+
+    const save = await fetch(endpoint,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({
+        attendee:{
+          name: persona.name,
+          dni: persona.dni,
+          pharmacyNumber: farmacia || persona.pharmacyNumber,
+          checkedAt: new Date().toISOString()
+        }
+      })
+    });
+
+    if(!save.ok) throw new Error();
+
+    showMessage('✔ Asistencia registrada','success');
+    showOverlay();
+    dniInput.value = '';
+    farmaciaInput.value = '';
+    dniInput.focus();
+
+  }catch(e){
+    showMessage('Error de conexión o guardado','warning');
+  }
+}
+
+document.getElementById('farmacia').addEventListener('keydown', e => {
+  if(e.key === 'Enter') validar();
+});
+
+document.getElementById('dni').addEventListener('keydown', e => {
+  if(e.key === 'Enter') {
+    document.getElementById('farmacia').focus();
+  }
+});
+</script>
+
+</body>
+</html>
