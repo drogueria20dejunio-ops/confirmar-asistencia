@@ -77,6 +77,18 @@
       background: #15803d;
     }
 
+    #successOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(22,163,74,.96);
+      color: white;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 9999;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -84,12 +96,12 @@
 <div class="container">
 
   <div class="card">
-    <h1>Tomamos IMPULSO juntos</h1>
-    <div class="subtitle">Bienvenido al evento - 15 de abril</div>
+    <h1>Confirmá tu asistencia</h1>
+    <div class="subtitle">Coty Beauty Experience</div>
   </div>
 
   <div class="card">
-    <h2>Confirmación asistencia</h2>
+    <h2>Confirmá tu asistencia</h2>
 
     <input id="dni" class="input" placeholder="DNI" autofocus />
     <input id="farmacia" class="input" placeholder="Número de farmacia" />
@@ -99,6 +111,11 @@
     <div id="message" class="message"></div>
   </div>
 
+</div>
+
+<div id="successOverlay">
+  <div style="font-size:110px; line-height:1; font-weight:bold; margin-bottom:16px;">✔</div>
+  <div style="font-size:54px; font-weight:bold;">VALIDADO</div>
 </div>
 
 <script>
@@ -113,6 +130,15 @@ function showMessage(text, type){
 
 function normalize(v){
   return String(v || '').replace(/\s+/g,'').toLowerCase();
+}
+
+function showOverlay(){
+  const overlay = document.getElementById('successOverlay');
+  overlay.style.display = 'flex';
+
+  setTimeout(() => {
+    overlay.style.display = 'none';
+  }, 1000);
 }
 
 async function validar(){
@@ -161,6 +187,8 @@ async function validar(){
     });
 
     showMessage('✔ Asistencia registrada','success');
+    showOverlay();
+
     dniInput.value = '';
     farmaciaInput.value = '';
     dniInput.focus();
@@ -172,6 +200,12 @@ async function validar(){
 
 document.getElementById('farmacia').addEventListener('keydown', e => {
   if(e.key === 'Enter') validar();
+});
+
+document.getElementById('dni').addEventListener('keydown', e => {
+  if(e.key === 'Enter') {
+    document.getElementById('farmacia').focus();
+  }
 });
 </script>
 
